@@ -42,14 +42,14 @@
                                         <a href="{{ route('clinics.edit', $clinic->id) }}" class="btn btn-info">
                                             <i class="fa fa-pencil-alt"></i>
                                         </a>
-                                        <form action="{{ route('clinics.destroy', $clinic->id) }}" method="POST"
+                                        {{-- <form action="{{ route('clinics.destroy', $clinic->id) }}" method="POST"
                                             class="d-inline">
                                             @csrf
                                             @method('delete')
                                             <button class="btn btn-danger">
                                                 <i class="fa fa-trash"></i>
                                             </button>
-                                        </form>
+                                        </form> --}}
                                     </td>
                                 </tr>
                             @empty
