@@ -31,6 +31,7 @@ class ClinicsController extends Controller
             'search' => $search // Pass the search term to the view
         ]);
     }
+    
     /**
      * Show the form for creating a new resource.
      */

@@ -24,25 +24,25 @@ class ExaminationsController extends Controller
         // Jika ada kata kunci pencarian, filter data berdasarkan pencarian dan ID dokter
         if ($search) {
             $examinations = ListClinic::with(['clinic_examination', 'patient', 'schedule_appointment'])
-            ->whereHas('schedule_appointment', function ($query) use ($doctorId) {
-                $query->where('doctors_id', $doctorId); // Filter berdasarkan dokter yang sedang login
-            })
+                ->whereHas('schedule_appointment', function ($query) use ($doctorId) {
+                    $query->where('doctors_id', $doctorId); // Filter berdasarkan dokter yang sedang login
+                })
                 // Pencarian berdasarkan keluhan atau nama pasien
                 ->where(function ($query) use ($search) {
                     $query->whereHas('clinic_examination', function ($query) use ($search) {
                         $query->where('complaint', 'LIKE', '%' . $search . '%');
                     })
-                    ->orWhereHas('patient', function ($query) use ($search) {
-                        $query->where('patientName', 'LIKE', '%' . $search . '%');
-                    });
+                        ->orWhereHas('patient', function ($query) use ($search) {
+                            $query->where('patientName', 'LIKE', '%' . $search . '%');
+                        });
                 })
                 ->get();
         } else {
             $examinations = ListClinic::with(['clinic_examination', 'patient', 'schedule_appointment'])
-            ->whereHas('schedule_appointment', function ($query) use ($doctorId) {
-                $query->where('doctors_id', $doctorId); // Filter berdasarkan dokter yang sedang login
-            })
-            ->get();
+                ->whereHas('schedule_appointment', function ($query) use ($doctorId) {
+                    $query->where('doctors_id', $doctorId); // Filter berdasarkan dokter yang sedang login
+                })
+                ->get();
         }
 
         // dd($examinations);
@@ -154,7 +154,7 @@ class ExaminationsController extends Controller
         $examination->examinationDate = $request->input('examinationDate');
         $examination->note = $request->input('note');
         $examination->list_clinics_id = $request->input('list_clinics_id'); // Mengupdate list_clinics_id
-        $examination->price = $request->input('price'); // Menyimpan harga baru jika diperlukan
+        $examination->price = floatval(str_replace(',', '', $request->input('price'))); // Menyimpan harga baru jika diperlukan
         $examination->save();
 
         // Mengupdate hubungan many-to-many dengan obat-obatan

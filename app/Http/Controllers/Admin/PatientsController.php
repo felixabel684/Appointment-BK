@@ -13,12 +13,26 @@ class PatientsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $patients = Patient::all(); //karena akan mengambil semua data travel package
+        // Get the search term from the request
+        $search = $request->input('search');
+
+        // If there is a search term, filter the payments
+        if ($search) {
+            $patients = Patient::where('nik', 'LIKE', '%' . $search . '%')
+                ->orWhere('patientName', 'LIKE', '%' . $search . '%')
+                ->orWhere('address', 'LIKE', '%' . $search . '%')
+                ->orWhere('rmNumber', 'LIKE', '%' . $search . '%')
+                ->get();
+        } else {
+            // If no search term, retrieve all payments
+            $patients = Patient::all();
+        }
 
         return view('pages.admin.patients.index', [
-            'patients' => $patients
+            'patients' => $patients,
+            'search' => $search // Pass the search term to the view
         ]);
     }
 
