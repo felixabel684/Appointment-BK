@@ -26,7 +26,7 @@ class PatientsRequest extends FormRequest
             'patientName' => 'required|max:255',
             'address' => 'required|max:255',
             'phone' => 'required|max:255',
-            'rmNumber' => 'required|max:255',
+            'rmNumber' => 'max:255',
         ];
     }
 }

@@ -10,7 +10,7 @@
     <meta name="author" content="">
     <link rel="icon" href="{{ asset('frontend/images/image.jpg') }}" />
 
-    <title>Bintang Kasih Admin</title>
+    <title>Poliklinik Admin</title>
 
     @include('includes.admin.style')
 </head>

@@ -44,7 +44,8 @@ class DashboardController extends Controller
         // Hitung jumlah pasien yang berobat ke dokter yang login
         $patientsCount = ListClinic::whereHas('schedule_appointment', function ($query) use ($doctorId) {
             $query->where('doctors_id', $doctorId);
-        })->count();
+        })->distinct('patients_id') // Hanya hitung pasien unik berdasarkan patient_id
+        ->count();
 
         $unexaminedPatientsCount = ListClinic::whereHas('schedule_appointment', function ($query) use ($doctorId) {
             $query->where('doctors_id', $doctorId);

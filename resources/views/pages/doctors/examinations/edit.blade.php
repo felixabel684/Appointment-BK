@@ -25,8 +25,8 @@
                     <input type="hidden" name="list_clinics_id" value="{{ $examinations->list_clinics_id }}">
 
                     <div class="form-group">
-                        <label for="patientName">No RM</label>
-                        <input type="text" class="form-control" name="patientName" id="patientName"
+                        <label for="rmNumber">No RM</label>
+                        <input type="text" class="form-control" name="rmNumber" id="rmNumber"
                             value="{{ $examinations_patient->patient->rmNumber }}" readonly>
                     </div>
 

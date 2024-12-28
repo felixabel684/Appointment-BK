@@ -44,15 +44,22 @@
                                     <td>{{ $patient->phone }}</td>
                                     <td>{{ $patient->rmNumber }}</td>
                                     <td>
-                                        @foreach ($patient->patient_clinic as $patient_clinic)
-                                            @if ($patient_clinic->isExamined())
-                                                <a href="{{ route('history.show', $patient->id) }}" class="btn btn-primary">
-                                                    <i class="fa fa-eye"> Detail Periksa</i>
-                                                </a>
-                                            @else
-                                                <span class="text-danger">Belum Diperiksa</span>
-                                            @endif
-                                        @endforeach
+                                        @php
+                                            // Periksa apakah ada setidaknya satu pemeriksaan yang sudah diperiksa
+                                            $hasExamined = $patient->patient_clinic->contains(function (
+                                                $patient_clinic,
+                                            ) {
+                                                return $patient_clinic->isExamined();
+                                            });
+                                        @endphp
+
+                                        @if ($hasExamined)
+                                            <a href="{{ route('history.show', $patient->id) }}" class="btn btn-primary">
+                                                <i class="fa fa-eye"> Detail Periksa</i>
+                                            </a>
+                                        @else
+                                            <span class="text-danger">Belum Diperiksa</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

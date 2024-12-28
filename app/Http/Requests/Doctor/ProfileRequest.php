@@ -22,7 +22,7 @@ class ProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => 'required|string|unique:users',
+            'username' => 'required|string',
             'doctorName' => 'required|string',
             'address' => 'required|string',
             'phone' => 'required|string',

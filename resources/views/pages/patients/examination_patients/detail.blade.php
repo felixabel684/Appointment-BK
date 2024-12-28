@@ -50,7 +50,6 @@
                         <th>Nomor Antrian</th>
                         <td class="queue-number-text">{{ $examination_patient->queueNumber }}</td>
                     </tr>
-                    </tr>
 
                     @if ($isExamined)
                         <tr>

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigIncrements('nik')->unique();
+            $table->bigInteger('nik')->unique();
             $table->string('patientName');
             $table->string('address');
             $table->string('phone');

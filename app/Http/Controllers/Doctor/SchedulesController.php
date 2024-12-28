@@ -185,11 +185,40 @@ class SchedulesController extends Controller
 
         $todayInIndonesian = $daysInIndonesian[$today];
 
+        // Logika untuk memeriksa jika hari ini adalah hari yang sama dengan jadwal yang sedang diupdate
+        if (strtolower($item->appointmentDay) == strtolower($todayInIndonesian)) {
+            // Jika hari jadwal sama dengan hari ini, tidak boleh diubah harinya dan waktunya
+            if (
+                strtolower($data['appointmentDay']) != strtolower($item->appointmentDay) ||
+                $data['appointmentStart'] != $item->appointmentStart ||
+                $data['appointmentEnd'] != $item->appointmentEnd
+            ) {
+                return back()->withErrors([
+                    'appointmentDay' => 'Hari dan waktu jadwal yang sama dengan hari ini tidak dapat diubah.',
+                ]);
+            }
+        }
+
         // Logika untuk memeriksa jika hari ini adalah hari yang sama dengan yang ingin diubah
         if (strtolower($data['appointmentDay']) == strtolower($todayInIndonesian)) {
-            // Jika statusnya adalah ACTIVE dan diubah di hari yang sama, maka tidak bisa diubah
-            if ($data['appointmentStatus'] == 'ACTIVE' && $item->appointmentStatus != 'ACTIVE') {
-                return back()->withErrors(['appointmentStatus' => 'Jadwal di hari yang sama tidak dapat diubah menjadi aktif.']);
+            // Ambil waktu sekarang
+            $now = Carbon::now();
+
+            // Konversi waktu mulai jadwal ke objek Carbon
+            $appointmentStart = Carbon::parse($data['appointmentStart']);
+
+            // Jika statusnya aktif dan diubah menjadi nonaktif, maka tidak diizinkan
+            if ($item->appointmentStatus == 'ACTIVE' && $data['appointmentStatus'] != 'ACTIVE') {
+                return back()->withErrors(['appointmentStatus' => 'Jadwal aktif pada hari ini tidak dapat diubah menjadi nonaktif.']);
+            }
+
+            // Periksa apakah waktu mulai lebih dari 5 jam dari waktu sekarang
+            if ($data['appointmentStatus'] == 'ACTIVE') {
+                $allowedTime = $now->addHours(5); // Tambahkan 3 jam ke waktu sekarang
+
+                if ($appointmentStart <= $allowedTime) { // Bandingkan waktu mulai jadwal dengan batas waktu
+                    return back()->withErrors(['appointmentStart' => 'Jadwal hanya dapat diaktifkan jika waktu mulai lebih dari 3 jam dari sekarang.']);
+                }
             }
         }
 
