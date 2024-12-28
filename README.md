@@ -9,4 +9,16 @@ Cara menjalankan proyek appointment dokter
 7. lalu ketikkan php artisan key:generate
 8. lalu run dengan php artisan serve
 
+List User
+Admin
+user  : admin
+pw    : admin1234
+
+Dokter
+user  : david
+pw    : david1234
+
+Pasien
+user  : 1122334455667788
+
    Selamat mencoba:)
