@@ -46,6 +46,13 @@
         </a>
     </li>
 
+    <li class="nav-item {{ Route::is('examinations_admin.index') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('examinations_admin.index') }}">
+            <i class="fas fa-pills"></i>
+            <span>Data Janji Temu</span>
+        </a>
+    </li>
+
     <hr class="sidebar-divider">
 
     <!-- Sidebar Toggler (Sidebar) -->

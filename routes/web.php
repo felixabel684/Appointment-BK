@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ClinicsController;
 use App\Http\Controllers\Admin\DoctorsController;
+use App\Http\Controllers\Admin\ExaminationsAdminController;
 use App\Http\Controllers\Doctor\ExaminationsController;
 use App\Http\Controllers\Doctor\HistoryController;
 use App\Http\Controllers\Admin\MedicinesController;
@@ -48,6 +49,7 @@ Route::prefix('/admin')
         Route::resource('doctors', DoctorsController::class);
         Route::resource('medicines', MedicinesController::class);
         Route::resource('clinics', ClinicsController::class);
+        Route::resource('examinations_admin', ExaminationsAdminController::class);
     });
 
 Route::prefix('/doctor')
