@@ -1,0 +1,92 @@
+[33mcommit ea382a1023b5424fef00b83ddd8837e9c519fa80[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: felixabel684 <felixabel684@gmail.com>
+Date:   Fri Jan 3 22:37:59 2025 +0700
+
+    cadangan
+
+[33mcommit f35af497b3b4584a1805d7514a61504acc41d2c9[m
+Merge: 23a4393 f5bd045
+Author: felixabel684 <felixabel684@gmail.com>
+Date:   Fri Jan 3 22:35:39 2025 +0700
+
+    Merge branch 'main' of https://github.com/felixabel684/Appointment-BK
+
+[33mcommit 23a4393d40270beb5b1d7a62b5dc86fad0963fe9[m
+Author: felixabel684 <felixabel684@gmail.com>
+Date:   Fri Jan 3 22:35:06 2025 +0700
+
+    menambahkan fitur pengelolaan data janji temu admin
+
+[33mcommit f5bd045a3d98aae6fb3161dce9c1faec8ef52451[m
+Author: Immanuel Felix Abel Ketaren <76461792+felixabel684@users.noreply.github.com>
+Date:   Sat Dec 28 13:26:39 2024 +0700
+
+    Update README.md
+
+[33mcommit 25204811b5675c904df2dbd9ba4b832c513520b1[m
+Author: Immanuel Felix Abel Ketaren <76461792+felixabel684@users.noreply.github.com>
+Date:   Sat Dec 28 13:19:11 2024 +0700
+
+    Update README.md
+
+[33mcommit dd1e12391adf53eb9ddd93e8c25c7209e8ca05b0[m
+Author: felixabel684 <felixabel684@gmail.com>
+Date:   Sat Dec 28 13:08:11 2024 +0700
+
+    update beberapa halaman, versi final
+
+[33mcommit 46bf7949d191b1509bb89b0ad844363b2d782254[m
+Author: felixabel684 <felixabel684@gmail.com>
+Date:   Fri Dec 13 23:26:06 2024 +0700
+
+    memperbaiki bug cari pasien (sisi admin) dan pemeriksaan pasien bagian hapus obat (sisi dokter)
+
+[33mcommit 734278f0c544db11587f316d03060ef3761bbeab[m
+Merge: aca16c6 0a66c7a
+Author: felixabel684 <felixabel684@gmail.com>
+Date:   Sun Dec 8 16:03:17 2024 +0700
+
+    Merge branch 'main' of https://github.com/felixabel684/Appointment-BK
+
+[33mcommit aca16c65ab26525beb6bf64bb80e308f7c8c7a76[m
+Author: felixabel684 <felixabel684@gmail.com>
+Date:   Sun Dec 8 16:02:17 2024 +0700
+
+    menghapus button delete pada clinic-admin
+
+[33mcommit 0a66c7a3f9e983b340578a385f6262fc56d24bab[m
+Author: Immanuel Felix Abel Ketaren <76461792+felixabel684@users.noreply.github.com>
+Date:   Sun Dec 8 15:57:44 2024 +0700
+
+    Update README.md
+
+[33mcommit dadfbe4f05e4f20be7b305a4de8ea0074c517783[m
+Author: Immanuel Felix Abel Ketaren <76461792+felixabel684@users.noreply.github.com>
+Date:   Sun Dec 8 15:52:36 2024 +0700
+
+    Update README.md
+
+[33mcommit 5c1b718ae7d08cb60308b0ebc348349cf13cbbf8[m
+Author: Immanuel Felix Abel Ketaren <76461792+felixabel684@users.noreply.github.com>
+Date:   Sun Dec 8 15:51:19 2024 +0700
+
+    Add files via upload
+
+[33mcommit ea2353d918eddc105b498695a93c3a82cf8a5f3a[m
+Merge: 1aa2b54 e6ca431
+Author: felixabel684 <felixabel684@gmail.com>
+Date:   Sun Dec 8 15:41:43 2024 +0700
+
+    Merge branch 'main' of https://github.com/felixabel684/Appointment-BK
+
+[33mcommit 1aa2b5435d1fc4b5e8cecb2d6261b11d19df71ba[m
+Author: felixabel684 <felixabel684@gmail.com>
+Date:   Sun Dec 8 15:29:02 2024 +0700
+
+    Membuat website appointment dokter poliklinik udinus
+
+[33mcommit e6ca431952306ec1a855ae855a78048d4e7c7358[m
+Author: Immanuel Felix Abel Ketaren <76461792+felixabel684@users.noreply.github.com>
+Date:   Sun Dec 8 15:23:31 2024 +0700
+
+    Initial commit
