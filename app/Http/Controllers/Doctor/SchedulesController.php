@@ -21,7 +21,7 @@ class SchedulesController extends Controller
 
         // Ambil jadwal dokter yang sedang login
         $schedules = AppointmentSchedule::with(['doctor_appointment'])  // Menggunakan relasi 'doctor_appointment' jika ada
-        ->where('doctors_id', $doctorId)  // Filter berdasarkan ID dokter yang sedang login
+            ->where('doctors_id', $doctorId)  // Filter berdasarkan ID dokter yang sedang login
             ->get();
 
         return view('pages.doctors.schedules.index', [
@@ -66,6 +66,16 @@ class SchedulesController extends Controller
 
         // Tentukan hari yang digunakan di form (hari dalam format bahasa Indonesia atau bahasa Inggris)
         $appointmentDay = $request->appointmentDay;
+
+        // Cek apakah ada penambahan hari yang sama, dokter hanya boleh memiliki 1 jadwal di hari yang sama
+        $overlap = AppointmentSchedule::where('doctors_id', $doctor->id)
+            ->where('appointmentDay', $appointmentDay) // Menggunakan appointmentDay yang berupa string
+            ->exists();
+
+        // Jika ada jadwal aktif pada hari yang sama, kirim pesan error
+        if ($overlap) {
+            return back()->withErrors(['appointmentDay' => 'Dalam 1 hari hanya boleh ada 1 jadwal']);
+        }
 
         // Cek apakah hari yang dipilih sama dengan hari ini dalam bahasa Indonesia atau bahasa Inggris
         if (strtolower($appointmentDay) == strtolower($todayInIndonesian) || strtolower($appointmentDay) == strtolower($today)) {
@@ -117,7 +127,7 @@ class SchedulesController extends Controller
 
         // Cek jadwal aktif sebelumnya dan nonaktifkan jika ada
         $activeSchedule = AppointmentSchedule::where('doctors_id', $doctor->id)
-        ->where('appointmentStatus', 'ACTIVE')
+            ->where('appointmentStatus', 'ACTIVE')
             ->first(); // Ambil jadwal aktif pertama
 
         if ($activeSchedule) {
@@ -232,11 +242,11 @@ class SchedulesController extends Controller
                 ->where(function ($query) use ($data) {
                     // Mengecek apakah jadwal baru tumpang tindih dengan jadwal yang ada
                     $query->whereBetween('appointmentStart', [$data['appointmentStart'], $data['appointmentEnd']])
-                    ->orWhereBetween('appointmentEnd', [$data['appointmentStart'], $data['appointmentEnd']])
-                    ->orWhere(function ($query) use ($data) {
-                        $query->where('appointmentStart', '<=', $data['appointmentStart'])
-                        ->where('appointmentEnd', '>=', $data['appointmentEnd']);
-                    });
+                        ->orWhereBetween('appointmentEnd', [$data['appointmentStart'], $data['appointmentEnd']])
+                        ->orWhere(function ($query) use ($data) {
+                            $query->where('appointmentStart', '<=', $data['appointmentStart'])
+                                ->where('appointmentEnd', '>=', $data['appointmentEnd']);
+                        });
                 })
                 ->exists();
 
@@ -256,11 +266,11 @@ class SchedulesController extends Controller
                 ->where(function ($query) use ($data) {
                     // Mengecek apakah jadwal baru tumpang tindih dengan jadwal yang ada
                     $query->whereBetween('appointmentStart', [$data['appointmentStart'], $data['appointmentEnd']])
-                    ->orWhereBetween('appointmentEnd', [$data['appointmentStart'], $data['appointmentEnd']])
-                    ->orWhere(function ($query) use ($data) {
-                        $query->where('appointmentStart', '<=', $data['appointmentStart'])
-                        ->where('appointmentEnd', '>=', $data['appointmentEnd']);
-                    });
+                        ->orWhereBetween('appointmentEnd', [$data['appointmentStart'], $data['appointmentEnd']])
+                        ->orWhere(function ($query) use ($data) {
+                            $query->where('appointmentStart', '<=', $data['appointmentStart'])
+                                ->where('appointmentEnd', '>=', $data['appointmentEnd']);
+                        });
                 })
                 ->exists();
 

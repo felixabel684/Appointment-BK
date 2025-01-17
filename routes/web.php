@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\LoginPatientController;
 use App\Http\Controllers\Auth\RegisterPatientController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Patient\ExaminationPatientsController;
+use App\Http\Controllers\Patient\PaymentsController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -79,6 +80,18 @@ Route::prefix('/patient')
         Route::get('/', [DashboardController::class, 'patient_dash'])->name('dashboard-patient'); //merujuk ke function index dari DashboardController dan route ini diberi nama 'dashboard' supaya tau route ini utk bagian apa
 
         Route::resource('examination_patients', ExaminationPatientsController::class);
+
+        Route::get('/payments', [PaymentsController::class, 'index'])->name('payments.index');
+
+        Route::get('/payments/create/{id}', [PaymentsController::class, 'create'])->name('payments.create');
+
+        Route::post('/payments/store', [PaymentsController::class, 'store'])->name('payments.store');
+
+        Route::get('/payments/{id}', [PaymentsController::class, 'show'])->name('payments.show');
+
+        Route::get('/payments/edit/{id}', [PaymentsController::class, 'edit'])->name('payments.edit');
+
+        Route::put('/payments/update/{id}', [PaymentsController::class, 'update'])->name('payments.update');
     });
 
 Auth::routes();

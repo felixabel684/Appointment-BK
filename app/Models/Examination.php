@@ -46,6 +46,16 @@ class Examination extends Model
         );
     }
 
+    public function payment_examination()
+    {
+        return $this->hasMany(Payment::class, 'examinations_id', 'id');
+    }
+
+    public function isPayment()
+    {
+        // Periksa apakah ada pembayaran terkait dengan examinations_id ini
+        return $this->payment_examination()->exists(); // Menggunakan exists() untuk cek ada data atau tidak
+    }
 
     // use HasFactory;
 }

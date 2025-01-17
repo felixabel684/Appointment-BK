@@ -1,0 +1,15 @@
+Cara menginstall php
+
+download php min versi 8.3
+download apache versi terbaru
+
+gunakan laragon
+
+kemudian pindahkan php dan apache ke laragon, dan pindah versinya yang paling terbaru
+
+download Microsoft Visual C++ Redistributable 2015- 2022
+
+tambahkan environment php dan apache di environtment atas
+
+tambahkan phpMyAdmin di laragon dengan cara
+download phpMyAdmin -> kemudian extract -> pindahkan ke folder C:\laragon\etc\apps

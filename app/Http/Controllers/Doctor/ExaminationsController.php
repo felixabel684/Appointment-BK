@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Examination;
 use App\Models\ListClinic;
 use App\Models\Medicine;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ExaminationsController extends Controller
@@ -21,12 +22,15 @@ class ExaminationsController extends Controller
         // Ambil kata kunci pencarian dari request
         $search = $request->input('search');
 
+        // Tentukan tanggal batas (4 hari yang lalu)
+        $fourDaysAgo = Carbon::now()->subDays(4);
+
         // Jika ada kata kunci pencarian, filter data berdasarkan pencarian dan ID dokter
         if ($search) {
             $examinations = ListClinic::with(['clinic_examination', 'patient', 'schedule_appointment'])
-                ->whereHas('schedule_appointment', function ($query) use ($doctorId) {
-                    $query->where('doctors_id', $doctorId); // Filter berdasarkan dokter yang sedang login
-                })
+            ->whereHas('schedule_appointment', function ($query) use ($doctorId) {
+                $query->where('doctors_id', $doctorId); // Filter berdasarkan dokter yang sedang login
+            })
                 // Pencarian berdasarkan keluhan atau nama pasien
                 ->where(function ($query) use ($search) {
                     $query->whereHas('clinic_examination', function ($query) use ($search) {
@@ -34,18 +38,38 @@ class ExaminationsController extends Controller
                     })
                         ->orWhereHas('patient', function ($query) use ($search) {
                             $query->where('patientName', 'LIKE', '%' . $search . '%');
+                            $query->where('rmNumber', 'LIKE', '%' . $search . '%');
                         });
                 })
+                // Menambahkan filter untuk hanya menampilkan data dengan examinationDate dalam 4 hari terakhir atau belum diperiksa
+                ->where(function ($query) use ($fourDaysAgo) {
+                    $query->whereHas('clinic_examination', function ($query) use ($fourDaysAgo) {
+                        // Filter hanya yang examinationDate lebih dari 4 hari yang lalu
+                        $query->where('examinationDate', '>=', $fourDaysAgo);
+                    })
+                        // Menampilkan pasien yang belum diperiksa (examinationDate == null)
+                        ->orWhereDoesntHave('clinic_examination');
+                })
+                ->orderBy('queueNumber', 'asc')  // Urutkan data berdasarkan queueNumber dari kecil ke besar
                 ->get();
         } else {
+            // Jika tidak ada kata kunci pencarian, tampilkan semua pasien dengan filter examinationDate lebih dari 4 hari yang lalu atau belum diperiksa
             $examinations = ListClinic::with(['clinic_examination', 'patient', 'schedule_appointment'])
-                ->whereHas('schedule_appointment', function ($query) use ($doctorId) {
-                    $query->where('doctors_id', $doctorId); // Filter berdasarkan dokter yang sedang login
+            ->whereHas('schedule_appointment', function ($query) use ($doctorId) {
+                $query->where('doctors_id', $doctorId); // Filter berdasarkan dokter yang sedang login
+            })
+                // Menambahkan filter untuk hanya menampilkan data dengan examinationDate dalam 4 hari terakhir atau belum diperiksa
+                ->where(function ($query) use ($fourDaysAgo) {
+                    $query->whereHas('clinic_examination', function ($query) use ($fourDaysAgo) {
+                        // Filter hanya yang examinationDate lebih dari 4 hari yang lalu
+                        $query->where('examinationDate', '>=', $fourDaysAgo);
+                    })
+                        // Menampilkan pasien yang belum diperiksa (examinationDate == null)
+                        ->orWhereDoesntHave('clinic_examination');
                 })
+                ->orderBy('queueNumber', 'asc')  // Urutkan data berdasarkan queueNumber dari kecil ke besar
                 ->get();
         }
-
-        // dd($examinations);
 
         return view('pages.doctors.examinations.index', [
             'examinations' => $examinations,

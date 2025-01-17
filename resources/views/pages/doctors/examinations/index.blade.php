@@ -26,8 +26,10 @@
                             <tr>
                                 {{-- <th>No</th> --}}
                                 <th>No Urut</th>
+                                <th>No RM</th>
                                 <th>Nama Pasien</th>
                                 <th>Keluhan</th>
+                                <th>Tanggal Pemeriksaan</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -36,23 +38,49 @@
                                 <tr>
                                     {{-- <td>{{ $examination->id }}</td> --}}
                                     <td>{{ $examination->queueNumber }}</td>
+                                    <td>{{ $examination->patient->rmNumber }}</td>
                                     <td>{{ $examination->patient->patientName }}</td>
                                     <td>{{ $examination->complaint }}</td>
+
+                                    @php
+                                        // Memeriksa apakah pasien sudah memiliki relasi pemeriksaan di clinic_examinations
+                                        $hasChecked = $examination->clinic_examination()->first();
+                                    @endphp
+
                                     <td>
-                                        @php
-                                            // Memeriksa apakah pasien sudah memiliki relasi pemeriksaan di clinic_patients
-                                            $hasChecked = $examination->clinic_examination()->first(); // Memeriksa apakah ada relasi
-                                            // dd($hasChecked->id);
-                                        @endphp
-
-                                        
-
                                         @if ($hasChecked)
-                                            <!-- Jika pasien sudah diperiksa, tampilkan tombol edit -->
-                                            <a href="{{ route('examinations.edit', ['id' => $hasChecked->id]) }}"
-                                                class="btn btn-warning">
-                                                <i class="fa fa-pencil-alt"> Edit</i>
-                                            </a>
+                                            {{ \Carbon\Carbon::parse($hasChecked->examinationDate)->format('Y-m-d H:i') }}
+                                        @else
+                                            <!-- Jika pasien belum diperiksa, tampilkan text -->
+                                            Belum Diperiksa
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($hasChecked)
+                                            @php
+                                                // Menghitung selisih waktu antara tanggal dan waktu pemeriksaan dengan waktu sekarang
+                                                $examinationDate = Carbon\Carbon::parse($hasChecked->examinationDate);
+                                                $currentDate = Carbon\Carbon::now();
+
+                                                // Menghitung selisih dalam detik
+                                                $diffInMinutes = $examinationDate->diffInMinutes($currentDate);
+                                                // Menghitung selisih dalam detik selama 2 hari (2 * 24 * 60 = 2880 menit)
+                                                $twoDaysInMinutes = 2 * 24 * 60;
+                                            @endphp
+
+                                            @if ($diffInMinutes > $twoDaysInMinutes)
+                                                <!-- Jika sudah lebih dari 2 hari, tampilkan pesan bahwa pengeditan tidak dapat dilakukan -->
+                                                <button class="btn btn-secondary" disabled>
+                                                    <i class="fa fa-pencil-alt"> Edit</i> (Maksimal edit 2 hari sejak
+                                                    pemeriksaan)
+                                                </button>                                                
+                                            @else
+                                                <!-- Jika belum lebih dari 2 hari, tampilkan tombol edit -->                                                
+                                                <a href="{{ route('examinations.edit', ['id' => $hasChecked->id]) }}"
+                                                    class="btn btn-warning">
+                                                    <i class="fa fa-pencil-alt"> Edit</i>
+                                                </a>
+                                            @endif
                                         @else
                                             <!-- Jika pasien belum diperiksa, tampilkan tombol periksa -->
                                             <a href="{{ route('examinations.create', ['id' => $examination->id]) }}"

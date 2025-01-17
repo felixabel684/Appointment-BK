@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Doctor\SchedulesRequest;
 use App\Models\AppointmentSchedule;
 use App\Models\Clinic;
 use App\Models\Doctor;
 use App\Models\ListClinic;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ExaminationPatientsController extends Controller
 {
@@ -40,6 +40,26 @@ class ExaminationPatientsController extends Controller
     {
         // Ambil semua data poli yang ada
         $clinics = Clinic::all();
+
+        $timezone = 'Asia/Jakarta';
+        $now = Carbon::now($timezone);  // Mendapatkan waktu sekarang di Jakarta
+
+        // Validasi booking hanya bisa dilakukan setiap 3 hari sekali
+        $patientId = auth('patient')->id();
+        $lastBooking = ListClinic::where('patients_id', $patientId)
+        ->orderBy('created_at', 'desc') // Ambil booking terakhir berdasarkan tanggal
+            ->first();
+
+        if ($lastBooking) {
+            $lastBookingDay = Carbon::parse($lastBooking->created_at)->setTimezone($timezone);
+            $differenceInDays = $lastBookingDay->diffInDays($now);
+
+            Log::info("Last Booking: {$lastBookingDay}, Now: {$now}, Difference in Days: {$differenceInDays}");
+
+            if ($differenceInDays < 3) {
+                return redirect()->back()->withErrors('Anda hanya dapat melakukan booking pemeriksaan setiap 3 hari sekali.');
+            }
+        }
 
         return view('pages.patients.examination_patients.create', compact('clinics'));
     }
@@ -98,62 +118,131 @@ class ExaminationPatientsController extends Controller
             'Minggu' => 'Sunday',
         ];
 
-        // Pastikan booking hanya bisa dilakukan 1 hari sebelumnya
+        // Validasi hari pada jadwal
         $scheduleDayEnglish = $daysInEnglish[$appointmentSchedule->appointmentDay] ?? null;
         if (!$scheduleDayEnglish) {
             return redirect()->back()->withErrors('Hari pada jadwal tidak valid.');
         }
 
-        // Gunakan Carbon untuk menggabungkan hari dan waktu jadwal
-        $scheduleDay = Carbon::parse($scheduleDayEnglish)->setTimezone($timezone);  // Pastikan timezone disesuaikan
-        $scheduleStartTime = $scheduleDay->copy()->setTimeFromTimeString($appointmentSchedule->appointmentStart);
+        // Validasi booking hanya bisa dilakukan setiap 3 hari sekali
+        $patientId = auth('patient')->id();
+        $lastBooking = ListClinic::where('patients_id', $patientId)
+        ->orderBy('created_at', 'desc') // Ambil booking terakhir berdasarkan tanggal
+            ->first();
 
-        // Waktu maksimal booking (1 hari sebelumnya)
-        $bookingDeadline = $scheduleStartTime->subDay();
+        if ($lastBooking) {
+            $lastBookingDay = Carbon::parse($lastBooking->created_at)->setTimezone($timezone);
+            $differenceInDays = $lastBookingDay->diffInDays($now);
 
-        // Validasi apakah sudah melewati batas booking
-        if ($now->greaterThanOrEqualTo($bookingDeadline)) {
-            return redirect()->back()->withErrors('Booking hanya dapat dilakukan maksimal 1 hari sebelum jadwal.');
+            Log::info("Last Booking: {$lastBookingDay}, Now: {$now}, Difference in Days: {$differenceInDays}");
+
+            if ($differenceInDays < 3) {
+                return redirect()->back()->withErrors('Anda hanya dapat melakukan booking pemeriksaan setiap 3 hari sekali.');
+            }
         }
 
-        // Menggunakan startOfDay dan endOfDay untuk membandingkan tanggal saja
-        $startOfDay = $scheduleDay->startOfDay(); // Jam 00:00:00
-        $endOfDay = $scheduleDay->endOfDay(); // Jam 23:59:59
-
-        // Cek queueNumber terbesar berdasarkan appointment_schedule_id pada hari yang sama
+        // Tentukan queueNumber
         $latestQueue = ListClinic::where('appointment_schedules_id', $appointmentSchedule->id)
-            // ->whereBetween('created_at', [$startOfDay, $endOfDay])  // Cek antara jam 00:00 sampai 23:59
             ->orderBy('queueNumber', 'desc') // Urutkan berdasarkan queueNumber terbesar
             ->first();
 
-        // Tentukan queueNumber
-        if ($latestQueue) {
-            // Mengecek jika sudah lebih dari 1 minggu dari entri terakhir, reset queueNumber ke 1
-            $lastCreated = Carbon::parse($latestQueue->created_at)->setTimezone($timezone);
-
-            // Jika sudah lebih dari 1 minggu, reset queueNumber
-            if ($lastCreated->diffInWeeks($now) >= 1) {
-                $queueNumber = 1; // Reset queueNumber
-            } else {
-                // Tambahkan queueNumber terakhir dengan 1
-                $queueNumber = $latestQueue->queueNumber + 1;
-            }
-        } else {
-            // Jika tidak ada data sebelumnya, mulai dengan queueNumber 1
-            $queueNumber = 1;
-        }
+        $queueNumber = $latestQueue ? $latestQueue->queueNumber + 1 : 1;
 
         // Simpan data ke ListClinic
         $listClinic = ListClinic::create([
             'complaint' => $request->complaint,
             'queueNumber' => $queueNumber,
-            'patients_id' => auth('patient')->id(), // Ambil ID pasien yang login
+            'patients_id' => $patientId,
             'appointment_schedules_id' => $appointmentSchedule->id,
         ]);
 
         // Redirect dengan pesan sukses
         return redirect()->route('examination_patients.index')->with('success', 'Booking berhasil disimpan.');
     }
+
+    // public function store(Request $request)
+    // {
+    //     // Set timezone ke Jakarta
+    //     $timezone = 'Asia/Jakarta';
+    //     $now = Carbon::now($timezone); // Mendapatkan waktu sekarang di Jakarta
+
+    //     // Validasi input
+    //     $request->validate([
+    //         'appointment_schedules_id' => 'required|exists:appointment_schedules,id',
+    //         'complaint' => 'required|string|max:255',
+    //     ]);
+
+    //     // Ambil jadwal berdasarkan ID
+    //     $appointmentSchedule = AppointmentSchedule::findOrFail($request->appointment_schedules_id);
+
+    //     // Cek apakah sudah ada booking hari ini
+    //     $hasBookedToday = ListClinic::where('patients_id', $patientId)
+    //         ->whereDate('created_at', Carbon::today())
+    //         ->exists();
+
+    //     // Cek apakah sudah ada booking minggu ini
+    //     $hasBookedThisWeek = ListClinic::where('patients_id', $patientId)
+    //         ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+    //         ->exists();
+
+    //     // Jika sudah booking hari ini, tampilkan pesan error
+    //     if ($hasBookedToday) {
+    //         return redirect()->back()->withErrors('Anda sudah melakukan booking hari ini. Silakan mencoba lagi besok.');
+    //     }
+
+    //     // Jika sudah booking minggu ini, tampilkan pesan error
+    //     if ($hasBookedThisWeek) {
+    //         return redirect()->back()->withErrors('Anda hanya bisa melakukan booking sekali dalam seminggu.');
+    //     }
+
+    //     // Daftar konversi hari Indonesia ke Inggris
+    //     $daysInEnglish = [
+    //         'Senin' => 'Monday',
+    //         'Selasa' => 'Tuesday',
+    //         'Rabu' => 'Wednesday',
+    //         'Kamis' => 'Thursday',
+    //         'Jumat' => 'Friday',
+    //         'Sabtu' => 'Saturday',
+    //         'Minggu' => 'Sunday',
+    //     ];
+
+    //     // Pastikan booking hanya bisa dilakukan 1 hari sebelumnya
+    //     $scheduleDayEnglish = $daysInEnglish[$appointmentSchedule->appointmentDay] ?? null;
+    //     if (!$scheduleDayEnglish) {
+    //         return redirect()->back()->withErrors('Hari pada jadwal tidak valid.');
+    //     }
+
+    //     // Gunakan Carbon untuk menggabungkan hari dan waktu jadwal
+    //     $scheduleDay = Carbon::parse($scheduleDayEnglish)->setTimezone($timezone); // Pastikan timezone disesuaikan
+    //     $scheduleStartTime = $scheduleDay->copy()->setTimeFromTimeString($appointmentSchedule->appointmentStart);
+
+    //     // Waktu maksimal booking (1 hari sebelumnya)
+    //     $bookingDeadline = $scheduleStartTime->subDay();
+
+    //     // Validasi apakah sudah melewati batas booking
+    //     if ($now->greaterThanOrEqualTo($bookingDeadline)) {
+    //         return redirect()->back()->withErrors('Booking hanya dapat dilakukan maksimal 1 hari sebelum jadwal.');
+    //     }
+
+    //     // Cek queueNumber terbesar berdasarkan appointment_schedule_id pada hari yang sama
+    //     $latestQueue = ListClinic::where('appointment_schedules_id', $appointmentSchedule->id)
+    //         ->orderBy('queueNumber', 'desc') // Urutkan berdasarkan queueNumber terbesar
+    //         ->first();
+
+    //     // Tentukan queueNumber
+    //     $queueNumber = $latestQueue ? $latestQueue->queueNumber + 1 : 1;
+
+    //     // Simpan data ke ListClinic
+    //     $listClinic = ListClinic::create([
+    //         'complaint' => $request->complaint,
+    //         'queueNumber' => $queueNumber,
+    //         'patients_id' => auth('patient')->id(), // Ambil ID pasien yang login
+    //         'appointment_schedules_id' => $appointmentSchedule->id,
+    //     ]);
+
+    //     // Redirect dengan pesan sukses
+    //     return redirect()->route('examination_patients.index')->with('success', 'Booking berhasil disimpan.');
+    // }
 
     /**
      * Display the specified resource.
@@ -179,8 +268,10 @@ class ExaminationPatientsController extends Controller
         $isExamined = $examination_patient->clinic_examination()->exists(); // Cek apakah sudah diperiksa
         $examination_details = $isExamined ? $examination_patient->clinic_examination : null;
 
+        $examination = $examination_patient->clinic_examination->first(); // Ambil pertama jika banyak
+
         // dd($examination_patient);
 
-        return view('pages.patients.examination_patients.detail', compact('examination_patient', 'isExamined', 'examination_details'));
+        return view('pages.patients.examination_patients.detail', compact('examination_patient', 'isExamined', 'examination_details', 'examination'));
     }
 }

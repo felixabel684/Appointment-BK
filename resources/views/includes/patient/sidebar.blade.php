@@ -25,6 +25,13 @@
         </a>
     </li>
 
+    <li class="nav-item {{ Route::is('payments.index') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('payments.index') }}">
+            <i class="fas fa-dollar-sign"></i>
+            <span>Pembayaran</span>
+        </a>
+    </li>
+
     <hr class="sidebar-divider">
 
     <!-- Sidebar Toggler (Sidebar) -->

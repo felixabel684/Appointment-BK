@@ -94,6 +94,9 @@
                         </tr>
                     @endif
                 </table>
+                <a href="{{ route('payments.create', ['id' => $examination->id]) }}" class="btn btn-info">
+                    <i class="fas fa-dollar-sign"> Bayar Pemeriksaan</i>
+                </a>
             </div>
         </div>
     </div>
